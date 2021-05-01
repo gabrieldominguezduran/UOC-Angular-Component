@@ -1,0 +1,19 @@
+<div class="wine-container" [ngClass]="saleClass">
+  <img
+    src="assets/images/{{ wine.imageUrl }}"
+    alt="Wine photo"
+    class="wine-img"
+  />
+  <h4>{{ wine.name }}</h4>
+  <p>{{ wine.price }} €</p>
+  <button class="btn" (click)="decreaseQuantity()" *ngIf="wine.quantityInCart">
+    -
+  </button>
+  <select class="quantity-list">
+    <option *ngFor="let wine of wines; index as i">{{ i + 1 }}</option>
+  </select>
+  <span class="quantity">{{ wine.quantityInCart }}</span>
+  <button class="btn" (click)="increaseQuantity()">+</button>
+
+  <p>Good with: {{ food1.name }} or {{ food2.name }}</p>
+</div>
