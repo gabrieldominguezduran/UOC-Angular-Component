@@ -1,44 +1,95 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output } from '@angular/core';
+import { EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Wine } from '../../model/wine';
-import { Food } from '../../model/food';
 
 @Component({
   selector: 'app-wineitem',
-  templateUrl: './wineitem.component.html',
-  styleUrls: ['./wineitem.component.css'],
+  template: `
+    <div
+      class="wine-container"
+      [class.on-sale]="wine.isOnSale"
+      [class.not-on-sale]="!wine.isOnSale"
+    >
+      <img
+        src="assets/images/{{ wine.imageUrl }}"
+        alt="Wine photo"
+        class="wine-img"
+      />
+      <h4>{{ wine.name }}</h4>
+      <p>{{ wine.price }} €</p>
+      <button
+        class="btn"
+        (click)="decreaseQuantity(wine.id, wine.quantityInCart)"
+        *ngIf="wine.quantityInCart"
+      >
+        -
+      </button>
+      <span class="quantity">{{ wine.quantityInCart }}</span>
+      <button
+        class="btn"
+        (click)="increaseQuantity(wine.id, wine.quantityInCart)"
+      >
+        +
+      </button>
+
+      <p>
+        Good with: {{ wine.foodParing[0].name }} or
+        {{ wine.foodParing[1].name }}
+      </p>
+    </div>
+  `,
+  styles: [
+    `
+      .wine-container {
+        width: 200px;
+        height: 420px;
+        border: 1px solid black;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 1rem;
+      }
+
+      .on-sale {
+        background-color: rgb(199, 241, 175);
+      }
+
+      .not-on-sale {
+        background-color: rgb(241, 175, 175);
+      }
+
+      .wine-img {
+        width: 70%;
+      }
+
+      .btn {
+        padding: 0 0.5rem;
+        cursor: pointer;
+      }
+
+      .quantity {
+        margin: 0 0.3rem;
+      }
+    `,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WineitemComponent implements OnInit {
-  public wine: Wine;
-  public food1: Food;
-  public food2: Food;
-  public saleClass: { 'on-sale': boolean; 'not-on-sale': boolean };
-  public wines: [];
+  @Input() public wine: Wine;
 
-  constructor() {}
-
-  ngOnInit(): void {
-    this.wine = new Wine(
-      'Kai Simone Cabernet Suavignon',
-      'wine3.jpg',
-      20,
-      true,
-      1,
-      [
-        (this.food1 = new Food('Meat', 300, false, 100)),
-        (this.food2 = new Food('Cheese', 300, false, 100)),
-      ]
-    );
-    this.saleClass = {
-      'on-sale': this.wine.isOnSale,
-      'not-on-sale': !this.wine.isOnSale,
-    };
-    this.wines = [].constructor(20);
-  }
-  increaseQuantity(): void {
-    this.wine.quantityInCart = this.wine.quantityInCart + 1;
+  @Output() public WineQuantityChange: EventEmitter<Wine>;
+  constructor() {
+    this.WineQuantityChange = new EventEmitter<Wine>();
   }
 
-  decreaseQuantity(): void {
-    this.wine.quantityInCart = this.wine.quantityInCart - 1;
+  increaseQuantity(id, qty): void {
+    this.wine.quantityInCart += 1;
+    this.WineQuantityChange.emit(this.wine);
   }
+
+  decreaseQuantity(id, qty): void {
+    this.wine.quantityInCart -= 1;
+    this.WineQuantityChange.emit(this.wine);
+  }
+
+  ngOnInit(): void {}
 }
